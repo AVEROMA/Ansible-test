@@ -1,3 +1,4 @@
+```bash
 .
 ├── group_vars
 │   ├── all
@@ -58,3 +59,4 @@
             └── wp-config.php
 
 28 directories, 29 files
+```
