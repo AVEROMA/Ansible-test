@@ -1,0 +1,25 @@
+- name: Check if file manager already exist
+  stat:
+    path: /var/www/{{ vhost2 }}/doc_root/index.php
+  register: FM_exist
+
+- name: Pull code from GitHub
+  git:
+    repo: "https://github.com/prasathmani/tinyfilemanager.git"
+    dest: /var/www/{{ vhost2 }}/doc_root
+    clone: yes
+    update: yes
+  when: FM_exist.stat.exists == False
+
+- name: rename index to index.php
+  command: mv /var/www/{{ vhost2 }}/doc_root/tinyfilemanager.php /var/www/{{ vhost2 }}/doc_root/index.php
+  when: FM_exist.stat.exists == False
+
+- name: Change site.ru directory permission
+  file:
+    path: /var/www/{{ vhost2 }}
+    owner: site2
+    group: site2
+    mode: 0755
+    recurse: yes
+  when: FM_exist.stat.exists == False

@@ -1,0 +1,46 @@
+- name: Installing mariadb
+  apt:
+    name:
+      - mariadb-server
+      - mariadb-common
+      - python3-pymysql
+      - python3-mysqldb
+      - python3-openssl
+      - python-pymysql
+      - python-mysqldb
+    state: latest
+
+- name: Enable and start mysql service
+  systemd:
+    state: restarted
+    enabled: True
+    name: mysql
+
+- name: copy .my.cnf file with root password credentials
+  template: src=my.cnf dest=/root/.my.cnf owner=root mode=0600
+
+- name: remove the MySQL test database
+  action: mysql_db db=test state=absent login_unix_socket=/var/run/mysqld/mysqld.sock
+
+- name: Create database for wordpress
+  mysql_db:
+    name: "{{ wp_db_name }}"
+    state: present
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create dbuser for {{ vhost1 }} wordpress site
+  mysql_user:
+    name: "{{ wp_db_user }}"
+    password: "{{ wp_db_password }}"
+    priv: "{{ wp_db_name }}.*:ALL"
+    host: "{{ item }}"
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  with_items:
+    - localhost
+    - 127.0.0.1
+    - "{{ server }}"

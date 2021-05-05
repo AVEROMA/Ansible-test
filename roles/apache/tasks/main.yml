@@ -1,0 +1,37 @@
+- name: Install Apache
+  ansible.builtin.apt:
+    name:
+      - apache2
+      - libapache2-mpm-itk
+    state: latest
+
+- name: Replace apache2.conf
+  template:
+    src: apache2.conf
+    dest: /etc/apache2/apache2.conf
+
+- name: Replace ports.conf
+  template:
+    src: ports.conf
+    dest: /etc/apache2/ports.conf
+
+- name: Make conf.d directory
+  file:
+    path: /etc/apache2/conf.d
+    state: directory
+
+- name:  Copy {{ vhost1 }} conf file
+  template: src={{ vhost1 }}.conf dest=/etc/apache2/conf.d/{{ vhost1 }}.conf
+
+- name:  Copy {{ vhost2 }} conf file
+  template: src={{ vhost2 }}.conf dest=/etc/apache2/conf.d/{{ vhost2 }}.conf
+
+- name: Make sure apache start at boot
+  systemd:
+    name: apache2
+    enabled: yes
+
+- name: Start apache by systemd
+  systemd:
+    name: apache2
+    state: started

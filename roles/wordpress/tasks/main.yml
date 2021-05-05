@@ -1,0 +1,27 @@
+- name: Check if WP already exist
+  stat:
+    path: /var/www/{{ vhost1 }}/doc_root/wp-config.php
+  register: WP_exist
+
+- name: Pull code from GitHub
+  git:
+    repo: "https://github.com/WordPress/WordPress.git"
+    dest: /var/www/{{ vhost1 }}/doc_root
+    clone: yes
+    update: yes
+  when: WP_exist.stat.exists == False
+
+- name: Change site.ru directory permission
+  file:
+    path: /var/www/{{ vhost1 }}
+    owner: site1
+    group: site1
+    mode: 0755
+    recurse: yes
+  when: WP_exist.stat.exists == False
+
+- name: Replace wordpress configuration file
+  template:
+    src: wp-config.php
+    dest: /var/www/{{ vhost1 }}/doc_root
+  when: WP_exist.stat.exists == False

@@ -1,0 +1,57 @@
+- name: Install required packages
+  apt:
+    name:
+      - make
+      - gcc
+      - git
+    state: latest
+
+- name: Create site.ru user
+  user:
+    name: site1
+    comment: "site.ru user"
+    shell: /sbin/nologin
+    home: /dev/null
+
+- name: Create site-2.ru user
+  user:
+    name: site2
+    comment: "site-2.ru user"
+    shell: /sbin/nologin
+    home: /dev/null
+
+- name: Create directory structure
+  file:
+    path: /var/www/{{ vhost1 }}/{{ item }}
+    state: directory
+  with_items:
+    - doc_root
+    - tmp
+    - log
+    - session
+
+- name: Create directory structure
+  file:
+    path: /var/www/{{ vhost2 }}/{{ item }}
+    state: directory
+  with_items:
+    - doc_root
+    - tmp
+    - log
+    - session
+
+- name: Create log for apache
+  file:
+    path: /var/www/{{ item }}/log/apache2
+    state: directory
+  with_items:
+    - "{{ vhost1 }}"
+    - "{{ vhost2 }}"
+
+- name: Create log for nginx
+  file:
+    path: /var/www/{{ item }}/log/nginx
+    state: directory
+  with_items:
+    - "{{ vhost1 }}"
+    - "{{ vhost2 }}"

@@ -1,0 +1,13 @@
+---
+- hosts: webserver
+  become:
+    true
+  roles:
+    - common
+    - nginx
+    - php7
+    - apache
+    - mariadb
+    - phpmyadmin
+    - wordpress
+    - php_filemanager

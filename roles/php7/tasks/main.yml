@@ -1,0 +1,13 @@
+- name: Install php and php-modules
+  apt: 
+    name: "{{ item }}"
+    state: latest
+  with_items: 
+    - php
+    - php-mysql 
+    - libapache2-mod-php
+
+- name: Replace php.ini
+  template:
+    src: php.ini
+    dest: /etc/php/7.0/apache2/php.ini

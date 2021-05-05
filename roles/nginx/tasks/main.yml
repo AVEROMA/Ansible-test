@@ -1,0 +1,64 @@
+- name: Create nginx user
+  user:
+    name: nginx
+    comment: "nginx-proxy user"
+    shell: /sbin/nologin
+    home: /dev/null
+
+- name: Download Nginx
+  apt:
+    name: nginx
+    state: latest
+
+- name: Copy nginx configuration
+  template:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: Create nginx service for systemd
+  template:
+    src: nginx.service
+    dest: /lib/systemd/system/nginx.service
+
+- name: Make sure nginx starts at boot
+  systemd:
+    name: nginx
+    enabled: yes
+
+- name: Start nginx by systemd
+  systemd:
+    name: nginx
+    state: started
+
+- name:  Copy {{ vhost1 }} conf file
+  template: src={{ vhost1 }}.conf dest=/etc/nginx/sites-available/{{ vhost1 }}.conf
+
+- name:  Copy {{ vhost2 }} conf file
+  template: src={{ vhost2 }}.conf dest=/etc/nginx/sites-available/{{ vhost2 }}.conf
+
+- name:  Copy phpmyadmin.conf file
+  template: src=phpmyadmin.conf dest=/etc/nginx/sites-available/phpmyadmin.conf
+
+- name: Check if link for "{{ vhost1 }}" exist
+  stat:
+    path: /etc/nginx/sites-enabled/{{ vhost1 }}.conf
+  register: conf1_exist
+- name: Check if link for "{{ vhost2 }}" exist
+  stat:
+    path: /etc/nginx/sites-enabled/{{ vhost2 }}.conf
+  register: conf2_exist
+
+- name: Enable "{{ vhost1 }}"
+  shell: |
+    cd /etc/nginx/sites-enabled
+    ln -s ../sites-available/{{ vhost1 }}.conf .
+  notify:
+    - restart nginx
+  when: conf1_exist.stat.exists == False
+- name: Enable "{{ vhost2 }}"
+  shell: |
+    cd /etc/nginx/sites-enabled
+    ln -s ../sites-available/{{ vhost2 }}.conf .
+  notify:
+    - restart nginx
+  when: conf2_exist.stat.exists == False

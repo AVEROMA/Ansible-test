@@ -1,0 +1,2 @@
+[webserver]
+34.122.143.60 ansible_ssh_user=r.averyanov

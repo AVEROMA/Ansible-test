@@ -1,0 +1,14 @@
+#server IP
+server: 34.122.143.60
+
+#virtual hosts
+vhost1: site.ru
+vhost2: site-2.ru
+
+#document root for sites
+document_root: /var/www
+
+#wordpress db
+wp_db_user: site1
+wp_db_password: site123
+wp_db_name: site1_db
